@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace generator
 {
+    /// <summary>
+    /// Рандомная выдача символов
+    /// </summary>
+    [Obsolete]
     class CharGenerator 
     {
         private string syms = "абвгдеёжзийклмнопрстуфхцчшщьыъэюя"; 
@@ -23,22 +28,16 @@ namespace generator
     {
         static void Main(string[] args)
         {
-            CharGenerator gen = new CharGenerator();
-            SortedDictionary<char, int> stat = new SortedDictionary<char, int>();
-            for(int i = 0; i < 1000; i++) 
-            {
-               char ch = gen.getSym(); 
-               if (stat.ContainsKey(ch))
-                  stat[ch]++;
-               else
-                  stat.Add(ch, 1); Console.Write(ch);
-            }
-            Console.Write('\n');
-            foreach (KeyValuePair<char, int> entry in stat) 
-            {
-                 Console.WriteLine("{0} - {1}",entry.Key,entry.Value/1000.0); 
-            }
-            
+            Dictionary<string, Generator> nameGeneratorsPairs = new Dictionary<string, Generator>() {
+                {"chars",new BigrammCharGenerator(utilits.Utilits.GetWeights("..\\..\\..\\bigrammChars.txt")) },
+                {"words", new WordGenerator(utilits.Utilits.GetDictionaryStringInt("..\\..\\..\\FrequencyWords.txt")) },
+                {"two-words", new BigramWordGenerator(utilits.Utilits.GetDictionaryStringInt("..\\..\\..\\FrequencyTwoWords.txt")) }
+            };
+            foreach(var i in nameGeneratorsPairs) {
+                StreamWriter stream = new StreamWriter($"..\\..\\..\\{i.Key}-output.txt");
+                stream.WriteLine(i.Value.GetText(1000));
+                stream.Close();
+			}
         }
     }
 }
